@@ -1,0 +1,138 @@
+import { View, StyleSheet, ImageBackground, Text, TextInput, Button,ScrollView } from 'react-native';
+import React, { useState } from 'react';
+
+const Result = ({ route, navigation }) => {
+  const { data, handlesave } = route.params;
+  const {rowIndex}=data
+  const [editName, seteditName] = useState(data.toedit.Name);
+  const [editEmail, setEditEmail] = useState(data.toedit.Email);
+  const [editPhoneNumber, setEditPhoneNumber] = useState(data.toedit.PhoneNumber);
+  const [editPassword, setEditPassword] = useState(data.toedit.Password);
+  const [editAddress, setEditAddress] = useState(data.toedit.Address)
+  const [editGender, setEditGender] = useState(data.toedit.Gender);
+  const [editQualification, setEditQualification] = useState(data.toedit.qualification);
+  const [editCourse, setEditCourse] = useState(data.toedit.course);
+
+
+  const handleSave = () => {
+    const editedData = {
+      Name: editName,
+      Email: editEmail,
+      PhoneNumber: editPhoneNumber,
+      Password: editPassword,
+      Address: editAddress,
+      Gender: editGender,
+      qualification:editQualification,
+      course:editCourse
+    }
+    handlesave(editedData,rowIndex);
+    navigation.goBack();
+  };
+  return (
+    <ScrollView>
+      <View style={styles.card}>
+      <ImageBackground
+        style={styles.backgroundImage}
+        source={require('./ResultBg.jpg')}
+      >
+        <Text style={styles.title}>Name</Text>
+        <TextInput
+          style={styles.cardText}
+          value={editName}
+          onChangeText={(value) => seteditName(value)}
+          placeholder='Name'
+        />
+        <Text style={styles.title}>Email</Text>
+        <TextInput
+          style={styles.cardText}
+          value={editEmail}
+          onChangeText={(value) => setEditEmail(value)}
+        />
+        <Text style={styles.title}>PhoneNumber</Text>
+        <TextInput
+          style={styles.cardText}
+          value={editPhoneNumber}
+          onChangeText={(value) => setEditPhoneNumber(value)}
+        />
+        <Text style={styles.title}>Address</Text>
+<TextInput
+  style={styles.cardText}
+  value={editAddress}
+  onChangeText={(value) => setEditAddress(value)}
+/>
+<Text style={styles.title}>Gender</Text>
+<TextInput
+  style={styles.cardText}
+  value={editGender}
+  onChangeText={(value) => setEditGender(value)}
+/>
+<Text style={styles.title}>Password</Text>
+<TextInput
+  style={styles.cardText}
+  secureTextEntry={true}
+  value={editPassword}
+  onChangeText={(value) => setEditPassword(value)}
+/>
+<Text style={styles.title}>Qualification</Text>
+<TextInput
+  style={styles.cardText}
+  value={editQualification}
+  onChangeText={(value) => setEditQualification(value)}
+/>
+<Text style={styles.title}>Course</Text>
+<TextInput
+  style={styles.cardText}
+  value={editCourse}
+  onChangeText={(value) => setEditCourse(value)}
+/>
+
+
+        <Button
+          title='Submit'
+          onPress={handleSave}
+        />
+      </ImageBackground>
+    </View>
+    </ScrollView>
+  );
+};
+
+export default Result;
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: 'transparent',
+    borderRadius: 15,
+    padding: 15,
+    margin: 15,
+    display: 'flex',
+    shadowColor: 'blue',
+    height: '100%',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  cardText: {
+    fontSize: 20,
+    fontWeight: '500',
+    marginBottom: 10,
+    borderWidth: 2,
+    borderRadius: 10,
+    textAlign: 'center',
+    height: 50,
+    lineHeight: 45,
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
+  },
+  title: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: '800',
+  }
+});
