@@ -1,0 +1,448 @@
+import React, { useState} from 'react';
+import { View, Text, TextInput,ImageBackground, StyleSheet,Button, ScrollView,TouchableOpacity} from 'react-native';
+import {Picker} from '@react-native-picker/picker';
+
+const Entry = ({navigation}) => {
+
+  const [Name, setName] = useState("")
+  const [Email, setEmail] = useState("")
+  const [PhoneNumber,setPhoneNumber] = useState("")
+  const [Password,setPassword] = useState("")
+  const [ConfirmPassword,setConfirmPassword] = useState("")
+  const [Address,setAddress] = useState("")
+  const [Gender,setGender] = useState("")
+  const [qualification,setqualification] = useState("")
+  const [showSubQualification,setshowSubQualification]= useState(null)
+  const [course,setcourse]=useState('')
+  const [formErrors, setFormErrors] = useState({});
+  const handleGenderSelect = (selectedGender) => {
+    setGender(selectedGender)
+  };
+ 
+  const validateForm = () => {
+    let errors = {};
+    let isValid = true;
+    if (!Name.trim()) {
+      errors.Name = 'Name is required';
+      isValid = false;
+    } else if (!/^[a-zA-Z]{3,}$/.test(Name.trim())) {
+      errors.Name = 'Name must be at least 3 characters long and can only contain alphabets';
+      isValid = false;
+    }
+    if (!Email.trim()) {
+      errors.Email = 'Email is required';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(Email)) {
+      errors.Email = 'Email address is invalid';
+      isValid = false;
+    }
+  
+    if (!PhoneNumber.trim()) {
+      errors.PhoneNumber = 'Phone number is required';
+      isValid = false;
+    } else if (!/^\d{10}$/.test(PhoneNumber)) {
+      errors.PhoneNumber = 'Phone number is invalid';
+      isValid = false;
+    }
+  
+    if (!Password.trim()) {
+      errors.Password = 'Password is required';
+      isValid = false;
+    } else if (Password.trim().length < 8) {
+      errors.Password = 'Password should be at least 8 characters long';
+      isValid = false;
+    } else if (!/[A-Z]/.test(Password.trim())) {
+      errors.Password = 'Password should contain at least one uppercase letter';
+      isValid = false;
+    } else if (!/[a-z]/.test(Password.trim())) {
+      errors.Password = 'Password should contain at least one lowercase letter';
+      isValid = false;
+    } else if (!/\d/.test(Password.trim())) {
+      errors.Password = 'Password should contain at least one number';
+      isValid = false;
+    }
+  
+    if (!ConfirmPassword.trim()) {
+      errors.ConfirmPassword = 'Confirm password is required';
+      isValid = false;
+    } else if (Password.trim() !== ConfirmPassword.trim()) {
+      errors.ConfirmPassword = 'Passwords do not match';
+      isValid = false;
+    }
+  
+    if (!Address.trim()) {
+      errors.Address = 'Address is required';
+      isValid = false;
+    }
+    if (Gender=='') {
+      errors.Gender= 'Select one option please !';
+      isValid = false;
+    }
+    else{
+      errors.Gender=''
+    }
+    if (qualification=='') {
+      errors.qualification= 'Select one option please !';
+      isValid = false;
+    }
+    else{
+      errors.qualification=''
+    }
+    
+    setFormErrors(errors);
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    if (validateForm()) {
+      const formData = {
+        Name,
+        Email,
+        PhoneNumber,
+        Password,
+        ConfirmPassword,
+        Address,
+        Gender,
+        qualification,
+        course,
+      };
+      console.log(formData)
+      // Send the form data to the server using the fetch API
+      fetch('http://cfc4-183-82-251-119.ngrok.io/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Handle the response from the server
+          console.log('Form submission success:', data);
+          // Reset the form fields
+          Refresh();
+        })
+        .catch((error) => {
+          console.log('Form submission error:', error);
+        });
+    } else {
+      console.log('Form validation failed');
+    }
+  };
+  const onQualificationChange = (value) => {
+    setqualification(value) 
+   if (value === 'Bachelor' || value === 'Master') {
+     setshowSubQualification(true)
+   } else {
+     setshowSubQualification(false)
+   }
+ };
+  const Refresh = () => {
+  setName(""),
+  setEmail(""),
+  setAddress(""),
+  setConfirmPassword(""),
+  setGender(""),
+  setPassword(""),
+  setqualification(''),
+  setPhoneNumber(""),
+  setqualification(""),
+  setcourse("")
+  }
+  const StoreValue = (data, val) => {
+    if(val == "1"){
+      setName(data)
+    }
+    else if(val == "2"){
+      setEmail(data)
+    }
+    else if(val == "3"){
+      setPhoneNumber(data)
+    }
+    else if(val == "4"){
+      setPassword(data)
+    }
+    else if(val == "5"){
+      setConfirmPassword(data)
+    }
+    else if(val == "6"){
+      setAddress(data)
+    }
+    else if(val == "7"){
+      setGender(data)
+    }
+  }
+  return (
+    <View style={styles.container}>
+      <ImageBackground
+      style={styles.backgroundImage}
+      source={require('./Bg.jpg')}
+      >
+      <ScrollView>
+  <View style={styles.container}>
+      <Text style={styles.title}>Enter Your Details Below !!</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your name"
+          value={Name}
+          onChangeText={(value) => StoreValue(value, "1")}
+          onBlur={validateForm}
+        />
+        {formErrors.Name && <Text style={styles.errorText}>{formErrors.Name}</Text>}
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your email"
+          value={Email}
+          onChangeText={(value) => StoreValue(value, "2")}
+          onBlur={validateForm}
+          keyboardType='email-address'
+        />
+        {formErrors.Email && <Text style={styles.errorText}>{formErrors.Email}</Text>}
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your phonenumber"
+          value={PhoneNumber}
+          onChangeText={(value) => StoreValue(value, "3")}
+          onBlur={validateForm}
+          keyboardType='number-pad'
+          maxLength={10}
+        />
+        {formErrors.PhoneNumber && <Text style={styles.errorText}>{formErrors.PhoneNumber}</Text>}
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your password"
+          secureTextEntry={true}
+          value={Password}
+          onChangeText={(value) => StoreValue(value, "4")}
+          onBlur={validateForm}
+          maxLength={16}
+        />
+        {formErrors.Password && <Text style={styles.errorText}>{formErrors.Password}</Text>}
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm your password"
+          secureTextEntry={true}
+          value={ConfirmPassword}
+          onChangeText={(value) => StoreValue(value, "5")}
+          onBlur={validateForm}
+          maxLength={16}
+        />
+        {formErrors.ConfirmPassword && (
+          <Text style={styles.errorText}>{formErrors.ConfirmPassword}</Text>
+        )}
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your address"
+          value={Address}
+          onChangeText={(value) => StoreValue(value, "6")}
+          onBlur={validateForm}
+        />
+        {formErrors.Address && (
+          <Text style={styles.errorText}>{formErrors.Address}</Text>
+        )}
+      </View>
+      <Text style={styles.gendertitle}>Please select your gender</Text>
+      <View style={styles.gender}>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          Gender === 'male' ? styles.selectedButton : null,
+        ]}
+        onPress={() => handleGenderSelect('male')}
+        onBlur={validateForm}
+      >
+        <Text style={styles.buttonText}>Male</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          Gender === 'female' ? styles.selectedButton : null,
+        ]}
+        onPress={() => handleGenderSelect('female')}
+        onBlur={validateForm}
+      >
+        <Text style={styles.buttonText}>Female</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          Gender === 'other' ? styles.selectedButton : null,
+        ]}
+        onPress={() => handleGenderSelect('other')}
+        onBlur={validateForm}
+      >
+        <Text style={styles.buttonText}>Other</Text>
+      </TouchableOpacity>
+      </View>
+      {formErrors.Gender && <Text style={styles.errorText}>{formErrors.Gender}</Text>}
+      <Text style={styles.gendertitle}>Qualification:</Text>
+      <Picker
+        style={styles.dropdown}
+        selectedValue={qualification}
+        onValueChange={(value) => onQualificationChange(value)}
+      >
+        <Picker.Item label="Select Qualification" value="" />
+        <Picker.Item label="High School" value="High School" />
+        <Picker.Item label="Diploma" value="Diploma" />
+        <Picker.Item label="Bachelor's Degree" value="Bachelor" />
+        <Picker.Item label="Master's Degree" value="Master" />
+      </Picker>
+
+      {formErrors.qualification && <Text style={styles.errorText}>{formErrors.qualification}</Text>}
+      {showSubQualification && (
+  <>
+    <Text style={styles.label}>Select your courses:</Text>
+      {qualification === 'Bachelor' ? (
+        <Picker
+        style={styles.dropdown}
+        selectedValue={course}
+        onValueChange={(value) => setcourse(value)}
+        onBlur={validateForm}
+      >   
+          <Picker.Item label={`Select ${qualification} Course`} value="" />
+          <Picker.Item label="BSc" value="BSc" />
+          <Picker.Item label="BA" value="BA" />
+          <Picker.Item label="BBA" value="BBA" />
+          <Picker.Item label="B.Com" value="B.Com" />
+          <Picker.Item label="BE" value="BE" />
+          <Picker.Item label="B.Arch" value="B.Arch" />
+       </Picker>
+      ) : (
+        <Picker
+        style={styles.dropdown}
+        selectedValue={course}
+        onValueChange={(value) => setcourse(value)}
+        onBlur={validateForm}
+      >
+          <Picker.Item label={`Select ${qualification} Course`} value="" />
+          <Picker.Item label="MSc" value="MSc" />
+          <Picker.Item label="MA" value="MA" />
+          <Picker.Item label="M.Com" value="MCom" />
+          <Picker.Item label="ME" value="ME" />
+          <Picker.Item label="M.Arch" value="M.Arch" />
+       </Picker>
+      )}
+      {/* {formErrors.course && <Text style={styles.errorText}>{formErrors.course}</Text>} */}
+  </>
+)}
+
+      <View style={styles.buttons}>
+      <Button
+      onPress={handleSubmit}
+      title='Submit'
+      style={styles.submit}
+      />
+      <Button
+      onPress={Refresh}
+      title='Refresh'
+      color='green'
+      />
+      <Button
+      onPress={()=>navigation.navigate('Form')}
+      title='Data'
+      color='blue'
+      />
+      </View>
+    </View>
+    </ScrollView>
+      </ImageBackground>
+    </View>
+  );
+};
+export default Entry;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    textAlign:'center',
+    justifyContent:'center'
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom:5,
+    marginTop:20
+  },
+  inputContainer: {
+    marginBottom: 5,
+    justifyContent:'center'
+  },
+  input:{
+    borderWidth:2,
+    borderRadius:5,
+    backgroundColor: '#F5FCFF',
+    width:250,
+    justifyContent:'center'
+  },
+  errorText:{
+    color:'red',
+    textAlign:'center',
+    justifyContent:'center'
+  
+  },
+  buttons:{
+    display:'flex',
+    flexDirection:'row',
+    padding:15
+  },
+  gender:{
+    display:'flex',
+    flexDirection:'row'
+  },
+  gendertitle:{
+    fontSize:17,
+    fontWeight:500
+  },
+  genderButton: {
+    borderWidth: 1,
+    borderColor: '#000',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  genderButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  selectedButton: {
+    borderColor: 'blue',
+    borderWidth:2
+  },
+  selectedGenderText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  button: {
+    backgroundColor: '#ddd',
+    padding: 10,
+    borderRadius: 5,
+    margin: 5,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  dropdown: {
+    width: 250,
+    height: 40,
+    marginBottom: 16,
+  },
+  backgroundImage:{
+    flex:1,
+    resizeMode:'cover',
+    width:900
+  }
+})
