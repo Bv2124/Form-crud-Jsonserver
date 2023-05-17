@@ -1,0 +1,199 @@
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, ScrollView, ImageBackground, Button,TouchableOpacity } from "react-native";
+import Image from './Bg.jpg'
+import { Col, Row, Grid } from 'react-native-easy-grid';
+import { DataTable } from "react-native-paper";
+import Icon from 'react-native-vector-icons/FontAwesome';
+const Butto = ({ onPress, style, icon }) => (
+  <TouchableOpacity style={style} onPress={onPress}>
+    <Icon name={icon} size={29} color='red' />
+  </TouchableOpacity>
+)
+const Buttoo = ({ onPress, style, icon }) => (
+  <TouchableOpacity style={style} onPress={onPress}>
+    <Icon name={icon} size={30} color='blue' />
+  </TouchableOpacity>
+)
+function Form({navigation}) {
+  const [tableData, setTableData] = useState([]);
+  const [deletedRows, setDeletedRows] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []); // Only runs on component mount
+
+  const fetchData = async () => {
+    setIsLoading(true);
+
+ // Using the filter method to separate the data from an API
+
+ try {
+  const response = await fetch('http://cfc4-183-82-251-119.ngrok.io/posts');
+  const data = await response.json();
+  setTableData(data);
+  setIsLoading(false);
+} catch (error) {
+  console.log(error);
+  setIsLoading(false);
+
+}}
+  const handleRefresh = () => {
+    fetchData();
+  };
+
+  const handleDeleteRow = (rowIndex) => {
+    const deletedRow = tableData[rowIndex];
+    const updatedTableData = [...tableData];
+    updatedTableData.splice(rowIndex, 1);
+
+    setTableData(updatedTableData);
+
+
+    setDeletedRows([...deletedRows, deletedRow]);
+  };
+
+  const handleUndoDelete = () => {
+    const lastDeletedRow = deletedRows.pop();
+    const updatedTableData = [...tableData];
+    updatedTableData.push(lastDeletedRow);
+
+    setTableData(updatedTableData);
+    setDeletedRows([...deletedRows]);
+  };
+  const handlesave = (editedData, rowIndex) => {
+    const updatedTableData = [...tableData];
+    updatedTableData[rowIndex] = editedData;
+    setTableData(updatedTableData);
+  };
+  const handleEdit = (rowIndex) => {
+    const toedit = tableData[rowIndex]
+    navigation.navigate('Result', {data:{toedit,rowIndex},handlesave:handlesave})
+    console.log(toedit,'toedit')
+    console.log(handlesave,'handlesave')
+  }
+  
+  
+
+  return (
+    <ImageBackground
+      source={Image}
+      resizeMode='cover'
+      style={{ flex: 1, justifyContent: 'center' }}
+    >
+      <ScrollView>
+        <View style={styles.container}>
+          <DataTable style={styles.containerr}>
+            <DataTable.Header style={styles.tableHeader}>
+              <DataTable.Title textStyle={{fontSize:20,alignItems:'center',fontWeight:800}}>Submitted Data</DataTable.Title>
+              <DataTable.Title></DataTable.Title>
+            </DataTable.Header>
+
+            {tableData.map((data, index) => (
+              <DataTable.Row key={index}>
+                <View style={{width:'90%',flexDirection:'column'}}>
+                <DataTable.Cell>
+    <DataTable.Title textStyle={{fontSize:20,fontWeight:800}}>Name {data.Name}</DataTable.Title>
+  </DataTable.Cell>
+  <DataTable.Cell>
+    <DataTable.Title textStyle={{fontSize:20,fontWeight:800}}>Email {data.Email}</DataTable.Title>
+  </DataTable.Cell>
+  <DataTable.Cell>
+    <DataTable.Title textStyle={{fontSize:20,fontWeight:800}}>PhoneNumber  {data.PhoneNumber}</DataTable.Title>
+   
+  </DataTable.Cell>
+  <DataTable.Cell>
+    <DataTable.Title textStyle={{fontSize:20,fontWeight:800}}>Password    {data.Password}</DataTable.Title>
+ 
+  </DataTable.Cell>
+  <DataTable.Cell>
+    <DataTable.Title textStyle={{fontSize:20,fontWeight:800}}>Address     {data.Address}</DataTable.Title>
+
+  </DataTable.Cell>
+  <DataTable.Cell>
+    <DataTable.Title textStyle={{fontSize:20,fontWeight:800}}>Gender  {data.Gender}</DataTable.Title>
+   
+  </DataTable.Cell>
+  <DataTable.Cell>
+    <DataTable.Title textStyle={{fontSize:20,fontWeight:800}}>Qualification  {data.qualification}</DataTable.Title>
+   
+  </DataTable.Cell>
+  <DataTable.Cell>
+    <DataTable.Title textStyle={{fontSize:20,fontWeight:800}}>Course     {data.course}</DataTable.Title>
+
+  </DataTable.Cell>
+                </View>
+                <DataTable.Cell>
+                  <View style={{width:'10%'}}>
+                  <Buttoo
+                    icon='edit'
+                    onPress={() => handleEdit(index)}
+                    disabled={deletedRows.includes(data)}
+                    color='blue'
+                    style={{ width: '50%' }}
+                  />
+                  <Butto
+                    icon='remove'
+                    onPress={() => handleDeleteRow(index)}
+                    disabled={deletedRows.includes(data)}
+                    style={{ width: '50%' }}
+                  />
+                  </View>
+                </DataTable.Cell>
+              </DataTable.Row>
+            ))}
+          </DataTable>
+
+          <View style={styles.buttonContainer}>
+            {isLoading ? (
+              <Button title="Loading..." disabled />
+            ) : (
+              <Button title="Refresh Data"
+               onPress={handleRefresh}
+               color='green'
+               />
+            )}
+            {deletedRows.length > 0 && (
+              <View>
+                <Button 
+                title="Undo"
+                color='blue'
+                onPress={handleUndoDelete} />
+              </View>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    </ImageBackground>
+  );
+}
+export default Form
+const styles = StyleSheet.create({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    flex: 1,
+  },
+  containerr:{
+    borderRadius:1,
+    borderColor:'black',
+    borderWidth:5,
+    padding:10
+  },
+  tableHeader: {
+    backgroundColor: 'lightgreen',
+  },
+  buttonContainer: {
+    marginTop: 16,
+    flexDirection: 'row',
+    justifyContent:'space-between'},
+  undoContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 8,
+      },
+  undoText: {
+      marginRight: 8,
+      },
+      });
